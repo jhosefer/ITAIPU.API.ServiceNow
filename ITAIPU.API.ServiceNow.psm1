@@ -12,6 +12,7 @@ Foreach($import in @($Public + $Private + $Class)){
 # A váriavel ModuleControlFlags controla o comportamento das funções e está disponível a todo o modulo
 $MCF = [ordered]@{
     InstanceName = $Null
+    InstanceURI = $Null
     ClientID = $Null
     ClientSecret = $Null
     Username = $Null

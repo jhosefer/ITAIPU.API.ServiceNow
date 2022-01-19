@@ -1,4 +1,4 @@
-﻿function Connect-IBServiceNow {
+﻿function Connect-IBSN {
     <#
     .SYNOPSIS
         Abre uma sessão com a Microsoft Graph API
@@ -48,6 +48,7 @@
     }
     else{
         $ModuleControlFlags.InstanceName = $InstanceName
+        $ModuleControlFlags.InstanceURI = "https://$InstanceName.service-now.com"
         $ModuleControlFlags.ClientID = $ClientID
         $ModuleControlFlags.ClientSecret = $ClientSecret
         $ModuleControlFlags.Username = $Username

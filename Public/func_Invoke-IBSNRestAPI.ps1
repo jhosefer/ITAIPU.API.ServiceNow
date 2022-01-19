@@ -1,4 +1,4 @@
-﻿function Invoke-IBServiceNowRequest {
+﻿function Invoke-IBSNRestAPI {
     <#
     .SYNOPSIS
         Short description
@@ -35,8 +35,14 @@
             'Content-Type' = "application/json"
             'Authorization' = "Bearer $($ModuleControlFlags.AccessToken)"
         }
-
-        Invoke-RestMethod -Uri $URI -Method $Method -Headers $headers -Body $Body
+        try {
+            Invoke-RestMethod -Uri $URI -Method $Method -Headers $headers -Body $Body -ErrorAction Stop
+        }
+        catch{
+            $httpError = $_.Exception.Response.StatusCode
+            $razao = ($_.ErrorDetails.Message | ConvertFrom-Json).Error.message
+            Write-Error "HTTP $($httpError.value__) $httpError`: $razao" -ErrorAction Stop
+        }   
     }
     else {
         Write-Error "Você precisa se conectar a uma instância do ServiceNow para rodar este comando. Utilize Connect-IBServiceNow."
