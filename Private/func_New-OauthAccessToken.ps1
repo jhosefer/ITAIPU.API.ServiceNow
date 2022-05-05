@@ -1,19 +1,18 @@
 ﻿function New-OauthAccessToken {
     <#
     .SYNOPSIS
-        Short description
+        Obtem um novo Token Oauth2
     .DESCRIPTION
-        Long description
-    .PARAMETER Name
-        Specifies the file name.
-    .INPUTS
-        None. You cannot pipe objects to Add-Extension.
-    .OUTPUTS
-        None. You cannot pipe objects to Add-Extension.
-    .EXAMPLE
-        Example of how to use this cmdlet
-    .EXAMPLE
-        Another example of how to use this cmdlet
+        Para realizar a autenticação utilizando o Authorization Code Grant Flow é necessário primeiro obter um token OAuth.
+        Este token por sua vez é utilizado para realizar todas as requisições à API em vez de fornecer as credenciais de usuário e senha.
+
+        O token pode ser do tipo Access Token ou Refresh token.
+    .LINK
+        https://docs.servicenow.com/bundle/rome-platform-administration/page/administer/security/concept/c_OAuthApplications.html
+    .PARAMETER GrantType
+        Especifica o método de autenticação utilizada para obter um novo Access Token.
+            - password: Utiliza as credenciais de username/passowrd para realizar a primeira autenticação. Em caso de sucesso obtem um Access Token e um Refresh Token.
+            - refresh_token: Utiliza o Refresh Token para obter um novo Access Token. Neste caso, as credenciais não são mais necessárias.
     #>
     [CmdletBinding()]
     [OutputType([int])]

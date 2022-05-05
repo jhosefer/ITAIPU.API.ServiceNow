@@ -1,28 +1,22 @@
 ﻿function Connect-IBSN {
     <#
     .SYNOPSIS
-        Abre uma sessão com a Microsoft Graph API
+        Abre uma nova sessão com o ServiceNow Rest API.
     .DESCRIPTION
-        Abre uma sessão com a Microsoft Graph API
-        Para utilizar esta função, é necessário que uma aplicação já esteja registrada no tenant com as devidas permissões.
-    .PARAMETER TenantID
-        Especifica o identificador do Tenant
+        A sessão é aberta utilizando o 'OAuth authorization code grant flow' no qual exige uma OAuth application no ServiceNow autorizada a realizar as requisições.
+        Para maiores detalhes, consulte https://docs.servicenow.com/bundle/rome-platform-administration/page/administer/security/concept/c_OAuthApplications.html
+    .PARAMETER InstanceName
+        Especifica o nome da Instancia.
     .PARAMETER ClientID
-        Especifica o identificador da aplicação.
+        Especifica o Cliente ID do Oauth Application.
     .PARAMETER ClientSecret
-        Especifica o o segredo da aplicação.
-    .PARAMETER ClientCert
-        Especifica o certificado da aplicação.
-    .PARAMETER Interactive
-        Especifica se a conexão deverá ser aberta em modo interativo.
-    .PARAMETER ClientCertThumbprint
-        Especifica o thumbprint do certificado da aplicação. 
+        Especifica o Secret do Oauth Application.
+    .PARAMETER Username
+        Especifica o Username autorizado a realizar a autenticação na API.
+    .PARAMETER Password
+        Especifica a senha do usuário.
     .EXAMPLE
-        New-SelfSignedCertificate -CertStoreLocation Cert:\LocalMachine\My -Subject "myname" -Provider "Microsoft Enhanced RSA and AES Cryptographic Provider" -KeyExportPolicy NonExportable -KeySpec Signature | Export-Certificate -FilePath ~\Downloads\Certificate.cer
-        Connect-IBEWS -TenantId "xxx" -ClientID 'yyy' -ClientCertThumbPrint '1234'
-
-        Neste exemplo, é criado um certificado autoassinado na máquina. Este certificado é configurado na Aplicação no Azure AD afim de utilizá-lo na autenticação.
-
+        Connect-IBSN -InstanceName instancia -Username usuario -Password senha -ClientID ID -ClientSecret segredo
     #>
     [CmdletBinding(DefaultParameterSetName='SET1')]
     [OutputType([int])]

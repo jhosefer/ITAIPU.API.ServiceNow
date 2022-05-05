@@ -1,19 +1,11 @@
 ﻿function Test-OauthSession {
     <#
     .SYNOPSIS
-        Short description
+        Valida se a sessão com a Rest API ainda é valida.
     .DESCRIPTION
-        Long description
-    .PARAMETER Name
-        Specifies the file name.
-    .INPUTS
-        None. You cannot pipe objects to Add-Extension.
+        Valida se o token de acesso está valido ou se já expirou. Em caso de expiração, esta função utiliza o Refresh Token para solicitar um novo token de acesso.
     .OUTPUTS
-        None. You cannot pipe objects to Add-Extension.
-    .EXAMPLE
-        Example of how to use this cmdlet
-    .EXAMPLE
-        Another example of how to use this cmdlet
+        Retorna Verdadeiro se o Token está valido, ou falso se há algum problema com a sessão.
     #>
  
     if($ModuleControlFlags.AccessToken){
