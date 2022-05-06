@@ -1,7 +1,7 @@
 ﻿function Get-IBSNCatalogItem {
     <#
     .SYNOPSIS
-        Short description
+        Obtem um item de um Catalógo de Serviços.
     .DESCRIPTION
         Long description
     .PARAMETER Name

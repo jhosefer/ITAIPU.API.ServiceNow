@@ -1,25 +1,37 @@
 ﻿function Get-IBSNCatalogCategory {
     <#
     .SYNOPSIS
-        Short description
+        Obtem a categoria de um Catálogo.
     .DESCRIPTION
-        Long description
-    .PARAMETER Name
-        Specifies the file name.
-    .INPUTS
-        None. You cannot pipe objects to Add-Extension.
+        Obtem a categoria de um Catálogo.
+        Caso não seja especificado, retorna todas as cetegorias em um determinado catálogo.
+    .PARAMETER Catalog
+        Especifica um objeto Catálogo ou seu SysID.
+    .PARAMETER ID
+        Especifica o SysID de uma categoria.
     .OUTPUTS
-        None. You cannot pipe objects to Add-Extension.
+        Retorna um objeto PSCustomObject do tipo IBSNCatalogCategory.
     .EXAMPLE
-        Example of how to use this cmdlet
+        Get-IBSNCatalog | Get-IBSNCatalogCategory
+
+        --
+        Retorna todas as categorias de todos os catalogos.
     .EXAMPLE
-        Another example of how to use this cmdlet
+        Get-IBSNCatalogCategory -Catalog xxxxxxxxxxx
+
+        --
+        Retorna todas as categorias do catalogo especificado.
+    .EXAMPLE
+        Get-IBSNCatalogCategory -ID xxxxxxxxxxx
+
+        --
+        Retorna a Categoria cujo SysID é especificado.
     #>
-    [CmdletBinding(DefaultParameterSetName='SET0')]
+    [CmdletBinding(DefaultParameterSetName='SET1')]
     [OutputType([int])]
     param(
         [Parameter(Mandatory=$true,ParameterSetName='SET1')]
-        [string]$ID,
+        [String]$ID,
 
         [ValidateScript({
                 if ($_ -is [string]){

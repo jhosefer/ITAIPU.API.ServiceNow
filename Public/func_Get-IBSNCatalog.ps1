@@ -1,19 +1,14 @@
 ﻿function Get-IBSNCatalog {
     <#
     .SYNOPSIS
-        Short description
+        Obtem um Catálogo de Serviços.
     .DESCRIPTION
-        Long description
-    .PARAMETER Name
-        Specifies the file name.
-    .INPUTS
-        None. You cannot pipe objects to Add-Extension.
+        Obtem um Catálogo de Serviços.
+        Caso não seja especificado, retorna todos os catálogos publicados na Instância.
+    .PARAMETER ID
+        Especifica o SysID do Catálogo.
     .OUTPUTS
-        None. You cannot pipe objects to Add-Extension.
-    .EXAMPLE
-        Example of how to use this cmdlet
-    .EXAMPLE
-        Another example of how to use this cmdlet
+        Retorna um PSCustomObject do tipo IBSNCatalog.
     #>
     [CmdletBinding(DefaultParameterSetName='SET0')]
     [OutputType([System.Object])]
