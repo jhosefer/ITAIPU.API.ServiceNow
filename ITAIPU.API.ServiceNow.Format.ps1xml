@@ -2,7 +2,7 @@
 <Configuration>
   <ViewDefinitions>
     <View>
-    <Name>IBSNCatalogItem</Name>
+    <Name>IBSNCatalog</Name>
     <ViewSelectedBy>
       <TypeName>IBSNCatalog</TypeName>
     </ViewSelectedBy>
@@ -133,6 +133,58 @@
       <Name>IBSNRequest</Name>
       <ViewSelectedBy>
         <TypeName>IBSNRequest</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <autosize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>sys_id</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>sys_created_on</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>sys_created_by</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>description</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>sys_id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>number</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>sys_created_on</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>sys_created_by</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <View>
+      <Name>IBSNRequestItem</Name>
+      <ViewSelectedBy>
+        <TypeName>IBSNRequestItem</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <autosize/>
