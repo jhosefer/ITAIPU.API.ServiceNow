@@ -1,19 +1,16 @@
 ﻿function Invoke-IBSNRestAPI {
     <#
     .SYNOPSIS
-        Short description
+        Realiza uma chamada Rest API.
     .DESCRIPTION
-        Long description
-    .PARAMETER Name
-        Specifies the file name.
-    .INPUTS
-        None. You cannot pipe objects to Add-Extension.
-    .OUTPUTS
-        None. You cannot pipe objects to Add-Extension.
-    .EXAMPLE
-        Example of how to use this cmdlet
-    .EXAMPLE
-        Another example of how to use this cmdlet
+        Realiza uma chamada Rest API
+    .PARAMETER URI
+        Especifica o recurso a ser consumido na chamada.
+    .PARAMETER Body
+        Especifica o Corpo da chamada.
+    .PARAMETER Method
+        Especifica o Método.
+        Os seguintes valores são possiveis: GET,POST,PUT,PATCH,DELETE
     #>
     [CmdletBinding()]
     [OutputType([int])]
@@ -32,12 +29,10 @@
     if (Test-OauthSession){
         $headers = @{
             'Accept' = 'application/json'
-            'Content-Type' = "application/json"
-            'charset' = 'utf-8'
             'Authorization' = "Bearer $($ModuleControlFlags.AccessToken)"
         }
         try {
-            Invoke-RestMethod -Uri $URI -Method $Method -Headers $headers -Body $Body -ErrorAction Stop
+            Invoke-RestMethod -Uri $URI -Method $Method -Headers $headers -Body $Body -ContentType "application/json;charset=utf-8" -ErrorAction Stop
         }
         catch{
             $httpError = $_.Exception.Response.StatusCode
