@@ -8,10 +8,8 @@
 
         Cada Item da Requisição de Serviço obtem um número e pode ser tratado de forma individual.
         Para obter informações de cada Item do carrinho (Request) utilize o comando Get-IBSNRequestItem.
-    .PARAMETER Number
-        Especifica o Numero (out Ticket) da Requisição de Serviço.
     .PARAMETER ID
-        Especifica o SysID da requisição de Serviço.
+        Especifica a identidade da Requisição. Pode ser tanto SysID quanto o Número de Requisição.
     .PARAMETER Query
         Especifica uma Query com o critério de busca..
     .EXAMPLE
@@ -19,20 +17,12 @@
 
         --
         Obtem o ServiceRequest cujo SysID é especificado.
-    .EXAMPLE
-        Get-IBSNRequest -Number REQ00000
-
-        ---
-        Obtem o ServiceRequest cujo Ticket é especificado.
     #>
     [CmdletBinding(DefaultParameterSetName='SET0')]
     [OutputType([int])]
     param(
         [Parameter(Mandatory=$true,ParameterSetName='SET1')]
         [string]$ID,
-
-        [Parameter(Mandatory=$true,ParameterSetName='SET2')]
-        [string]$Number,
 
         [Parameter(Mandatory=$true,ParameterSetName='SET3')]
         [string]$Query
@@ -42,10 +32,7 @@
     $BaseURI = "$($ModuleControlFlags.InstanceURI)/$RestEndpoint"
 
     if($PSBoundParameters.ContainsKey('ID')){
-        $URI = "$BaseURI`?sysparm_query=sys_id%3D$ID&sysparm_limit=1"
-    }
-    if($PSBoundParameters.ContainsKey('Number')){
-        $URI = "$BaseURI`?sysparm_query=number%3D$Number&sysparm_limit=1"
+        $URI = "$BaseURI`?sysparm_query=sys_id%3D$ID%5EORnumber%3D$ID&sysparm_limit=1"
     }
     if($PSBoundParameters.ContainsKey('Query')){
         $URI = "$BaseURI`?sysparm_query=$Query&sysparm_limit=10000"

@@ -6,8 +6,8 @@
         Um Item de Requisição de serviço (RITM) é o objeto contido dentro da Requisição de Serviço na relação (N x 1). Cada RITM representa um Item de Catálogo solicitado pelo usuário.    
     .PARAMETER ID
         Especifica o SysID do item de Requisição.
-    .PARAMETER Number
-        Especifica o numero (Ticket) do Item de Requisição.
+    .PARAMETER Request
+        Especifica a Request onde o Item de Requisição se encontra.
     .PARAMETER Query
         Especifica uma Query com o critério de busca...
     .EXAMPLE
@@ -15,20 +15,12 @@
 
         --
         Obtem o RequestItem cujo SysID é especificado.
-    .EXAMPLE
-        Get-IBSNRequestItem -Number SS0000000
-
-        ---
-        Obtem o RequestItem cujo Ticket é especificado.
     #>
     [CmdletBinding(DefaultParameterSetName='SET0')]
     [OutputType([int])]
     param(
         [Parameter(Mandatory=$true,ParameterSetName='SET1')]
         [string]$ID,
-
-        [Parameter(Mandatory=$true,ParameterSetName='SET2')]
-        [string]$Number,
 
         [Parameter(Mandatory=$true,ParameterSetName='SET3')]
         [string]$Request,
@@ -41,13 +33,10 @@
     $BaseURI = "$($ModuleControlFlags.InstanceURI)/$RestEndpoint"
 
     if($PSBoundParameters.ContainsKey('ID')){
-        $URI = "$BaseURI`?sysparm_query=sys_id%3D$ID&sysparm_limit=1"
-    }
-    if($PSBoundParameters.ContainsKey('Number')){
-        $URI = "$BaseURI`?sysparm_query=number%3D$Number&sysparm_limit=1"
+        $URI = "$BaseURI`?sysparm_query=sys_id%3D$ID%5EORnumber%3D$ID&sysparm_limit=1"
     }
     if($PSBoundParameters.ContainsKey('Request')){
-        $Req = Get-IBSNRequest -Number $Request
+        $Req = Get-IBSNRequest -ID $Request
         $URI = "$BaseURI`?sysparm_query=request%3D$($Req.sys_id)&sysparm_limit=1"
     }
     if($PSBoundParameters.ContainsKey('Query')){
