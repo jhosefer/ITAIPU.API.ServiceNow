@@ -154,10 +154,6 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>requested_for</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
             <Label>description</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -176,9 +172,6 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>sys_created_by</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>requested_for</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>description</PropertyName>
