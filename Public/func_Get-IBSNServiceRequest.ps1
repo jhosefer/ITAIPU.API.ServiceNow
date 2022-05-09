@@ -1,15 +1,17 @@
-﻿function Get-IBSNRequest {
+﻿function Get-IBSNServiceRequest {
     <#
     .SYNOPSIS
-        Short description
+        Obtem uma Solicitação de Serviço.
     .DESCRIPTION
-        Long description
-    .PARAMETER Name
-        Specifies the file name.
-    .INPUTS
-        None. You cannot pipe objects to Add-Extension.
-    .OUTPUTS
-        None. You cannot pipe objects to Add-Extension.
+        A solicitação de serviço pode ser obtida pelo seu Ticket, Numero de Requisição ou uma Query. 
+        Em caso de Querys, vários tickets podem ser retornados.
+    .PARAMETER Ticket
+        Especifica o Ticket da Solicitação de serviço.
+    .PARAMETER Request
+        Especifica o numero da requisição de serviço.
+        A relação da requisição de serviço com a Solicitação de serviço é sempre de 1 para 1. 
+    .PARAMETER Query
+        Especifica uma Query com o critério de busca..
     .EXAMPLE
         Example of how to use this cmdlet
     .EXAMPLE
@@ -22,6 +24,9 @@
         [string]$Ticket,
 
         [Parameter(Mandatory=$true,ParameterSetName='SET2')]
+        [string]$Request,
+
+        [Parameter(Mandatory=$true,ParameterSetName='SET3')]
         [string]$Query
     )
 
@@ -30,6 +35,9 @@
 
     if($PSBoundParameters.ContainsKey('Ticket')){
         $URI = "$BaseURI`?sysparm_query=number%3D$Ticket&sysparm_limit=1"
+    }
+    if($PSBoundParameters.ContainsKey('Request')){
+        $URI = "$BaseURI`?sysparm_query=request_numbe%3D$Request&sysparm_limit=1"
     }
     if($PSBoundParameters.ContainsKey('Query')){
         $URI = "$BaseURI`?sysparm_query=$Query&sysparm_limit=10000"
