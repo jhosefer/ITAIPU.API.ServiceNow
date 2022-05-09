@@ -31,6 +31,9 @@
         [string]$Number,
 
         [Parameter(Mandatory=$true,ParameterSetName='SET3')]
+        [string]$Request,
+
+        [Parameter(Mandatory=$true,ParameterSetName='SET4')]
         [string]$Query
     )
 
@@ -42,6 +45,10 @@
     }
     if($PSBoundParameters.ContainsKey('Number')){
         $URI = "$BaseURI`?sysparm_query=number%3D$Number&sysparm_limit=1"
+    }
+    if($PSBoundParameters.ContainsKey('Request')){
+        $Req = Get-IBSNRequest -Number $Request
+        $URI = "$BaseURI`?sysparm_query=request%3D$($Req.sys_id)&sysparm_limit=1"
     }
     if($PSBoundParameters.ContainsKey('Query')){
         $URI = "$BaseURI`?sysparm_query=$Query&sysparm_limit=10000"
