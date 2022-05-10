@@ -25,8 +25,8 @@
     else {
         $URI = "$($ModuleControlFlags.InstanceURI)/$RestEndPoint`?sysparm_limit=10000"
     }
-    
-    try {
+
+    try { 
         $Json = $(Invoke-IBSNRestAPI -URI $URI -Method GET -ErrorAction Stop).Result
         $Json | ForEach-Object{$_.psobject.TypeNames.Insert(0, "IBSNCatalog")}; $Json  # Define a saida como um objeto do tipo IBSNCatalog
     }

@@ -23,24 +23,43 @@
         [Parameter(Mandatory=$true,ParameterSetName='SET1')]
         [System.Management.Automation.PSCredential]$Credential,
 
-        [Parameter(Mandatory=$true,ParameterSetName='SET1')]
+        [Parameter(Mandatory=$false,ParameterSetName='SET1')]
         [System.Management.Automation.PSCredential]$AppCredential
     )
 
-    if (Test-OauthSession){
+    $ModuleControlFlags.InstanceName = $InstanceName
+    $ModuleControlFlags.InstanceURI = "https://$InstanceName.service-now.com"
+    $ModuleControlFlags.Credential = $Credential
+
+    if (Test-ServiceNowSession){
         Write-Warning "Você já está conectado com à instância $($ModuleControlFlags.InstanceName.toUpper())."
     }
-    else{
-        $ModuleControlFlags.InstanceName = $InstanceName
-        $ModuleControlFlags.InstanceURI = "https://$InstanceName.service-now.com"
-        $ModuleControlFlags.Credential = $Credential
-        $ModuleControlFlags.AppCredential = $AppCredential
-        try {
-            New-OauthAccessToken -GrantType "password"
+    else {
+        if ($PSBoundParameters.ContainsKey('AppCredential')){            
+            $ModuleControlFlags.AppCredential = $AppCredential
+            $ModuleControlFlags.AuthType = 'Oauth'
+            try {
+                New-OauthAccessToken -GrantType "password"
+            }
+            catch {
+                Write-Error "$($_.Exception.Message)" -ErrorAction Stop
+            }
+            Write-Host "[$($ModuleControlFlags.InstanceName.toUpper())] Sessão aberta aberta com sucesso." -ForegroundColor Green
+
         }
-        catch {
-            Write-Error "$($_.Exception.Message)" -ErrorAction Stop
+        else {           
+            $RestEndpoint = "api/now/table/incident`?sysparm_limit=1"  # Testa as credenciais com um Get simples na tabela Incident.
+            try {
+                $Response = Invoke-WebRequest -Uri "$($ModuleControlFlags.InstanceURI)/$RestEndpoint" -ContentType "application/x-www-form-urlencoded" -Method Get -Authentication Basic -Credential $ModuleControlFlags.Credential
+            }
+            catch {
+                Write-Error "$($_.Exception.Message)" -ErrorAction Stop
+            }
+            if ($Response.StatusCode -eq '200'){
+                $ModuleControlFlags.BasicAuthStatus = $true
+                $ModuleControlFlags.AuthType = 'Basic'
+                Write-Host "[$($ModuleControlFlags.InstanceName.toUpper())] Sessão aberta aberta com sucesso." -ForegroundColor Green
+            }
         }
-        Write-Host "[$($ModuleControlFlags.InstanceName.toUpper())] Sessão aberta aberta com sucesso." -ForegroundColor Green
     }
 }
