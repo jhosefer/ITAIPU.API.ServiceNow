@@ -13,10 +13,8 @@ Foreach($import in @($Public + $Private + $Class)){
 $MCF = [ordered]@{
     InstanceName = $Null
     InstanceURI = $Null
-    ClientID = $Null
-    ClientSecret = $Null
-    Username = $Null
-    Password = $Null
+    Credential = $Null
+    AppCredential = $Null
     AccessToken = $Null
     RefreshToken = $Null
     ExpirationDate = $Null

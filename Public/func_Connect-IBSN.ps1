@@ -7,14 +7,10 @@
         Para maiores detalhes, consulte https://docs.servicenow.com/bundle/rome-platform-administration/page/administer/security/concept/c_OAuthApplications.html
     .PARAMETER InstanceName
         Especifica o nome da Instancia.
-    .PARAMETER ClientID
-        Especifica o Cliente ID do Oauth Application.
-    .PARAMETER ClientSecret
-        Especifica o Secret do Oauth Application.
-    .PARAMETER Username
-        Especifica o Username autorizado a realizar a autenticação na API.
-    .PARAMETER Password
-        Especifica a senha do usuário.
+    .PARAMETER Credential
+        Especifica as credenciais do usuário.
+    .PARAMETER AppCredential
+        Especifica as credenciais da aplicação Oauth.
     .EXAMPLE
         Connect-IBSN -InstanceName instancia -Username usuario -Password senha -ClientID ID -ClientSecret segredo
     #>
@@ -25,16 +21,10 @@
         [string]$InstanceName,
 
         [Parameter(Mandatory=$true,ParameterSetName='SET1')]
-        [string]$ClientID,
+        [System.Management.Automation.PSCredential]$Credential,
 
         [Parameter(Mandatory=$true,ParameterSetName='SET1')]
-        [string]$ClientSecret,
-
-        [Parameter(Mandatory=$true,ParameterSetName='SET1')]
-        [string]$Username,
-
-        [Parameter(Mandatory=$true,ParameterSetName='SET1')]
-        [string]$Password
+        [System.Management.Automation.PSCredential]$AppCredential
     )
 
     if (Test-OauthSession){
@@ -43,11 +33,8 @@
     else{
         $ModuleControlFlags.InstanceName = $InstanceName
         $ModuleControlFlags.InstanceURI = "https://$InstanceName.service-now.com"
-        $ModuleControlFlags.ClientID = $ClientID
-        $ModuleControlFlags.ClientSecret = $ClientSecret
-        $ModuleControlFlags.Username = $Username
-        $ModuleControlFlags.Password = $Password
-
+        $ModuleControlFlags.Credential = $Credential
+        $ModuleControlFlags.AppCredential = $AppCredential
         try {
             New-OauthAccessToken -GrantType "password"
         }

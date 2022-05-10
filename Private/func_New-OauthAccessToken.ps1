@@ -27,21 +27,21 @@
     if ($GrantType -eq 'password'){
         $Body = @{
             grant_type = $GrantType
-            username = $ModuleControlFlags.Username
-            password = $ModuleControlFlags.Password
-            client_id = $ModuleControlFlags.ClientID
-            client_secret =$ModuleControlFlags.ClientSecret
+            username = $ModuleControlFlags.Credential.Username
+            password = $ModuleControlFlags.Credential.GetNetworkCredential().Password
+            client_id = $ModuleControlFlags.AppCredential.Username
+            client_secret = $ModuleControlFlags.AppCredential.GetNetworkCredential().Password
         }
     }
     else {
         $Body = @{
             grant_type = $GrantType
-            client_id = $ModuleControlFlags.ClientID
-            client_secret =$ModuleControlFlags.ClientSecret
+            client_id = $ModuleControlFlags.AppCredential.Username
+            client_secret = $ModuleControlFlags.AppCredential.GetNetworkCredential().Password
             refresh_token = $ModuleControlFlags.RefreshToken
         }
     }
-
+    
     $Token = Invoke-RestMethod -Uri "$($ModuleControlFlags.InstanceURI)/$RestEndpoint" -Body $Body -ContentType "application/x-www-form-urlencoded" -Method Post
     if ($Token) {
         $ModuleControlFlags.AccessToken = $Token.access_token
