@@ -28,7 +28,6 @@
     )
 
     $ModuleControlFlags.InstanceName = $InstanceName
-    $ModuleControlFlags.InstanceURI = "https://$InstanceName.service-now.com"
     $ModuleControlFlags.Credential = $Credential
 
     if (Test-ServiceNowSession){
@@ -50,7 +49,7 @@
         else {           
             $RestEndpoint = "api/now/table/incident`?sysparm_limit=1"  # Testa as credenciais com um Get simples na tabela Incident.
             try {
-                $Response = Invoke-WebRequest -Uri "$($ModuleControlFlags.InstanceURI)/$RestEndpoint" -ContentType "application/x-www-form-urlencoded" -Method Get -Authentication Basic -Credential $ModuleControlFlags.Credential
+                $Response = Invoke-WebRequest -Uri "https://$($ModuleControlFlags.InstanceName).service-now.com/$RestEndpoint" -ContentType "application/x-www-form-urlencoded" -Method Get -Authentication Basic -Credential $ModuleControlFlags.Credential
             }
             catch {
                 Write-Error "$($_.Exception.Message)" -ErrorAction Stop
