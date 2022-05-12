@@ -12,7 +12,6 @@ Foreach($import in @($Public + $Private + $Class)){
 # A váriavel ModuleControlFlags controla o comportamento das funções e está disponível a todo o modulo
 $MCF = [ordered]@{
     InstanceName = $Null
-    InstanceURI = $Null         
     Credential = $Null          # Credencial do usuário
     AppCredential = $Null       # Credencial do App Oauth na instancia
     AccessToken = $Null         # Access Token Oauth
@@ -22,3 +21,6 @@ $MCF = [ordered]@{
     BasicAuthStatus = $Null     # True se a autenticação Basica foi bem sucedida
 }
 New-Variable -Name ModuleControlFlags -Value $MCF -Scope Script
+
+# Variaveis estáticas;
+New-Variable -Name PAGE_SIZE -Value 100 -Scope Script -Option ReadOnly
