@@ -42,7 +42,7 @@
         }
     }
     
-    $Token = Invoke-RestMethod -Uri "$($ModuleControlFlags.InstanceURI)/$RestEndpoint" -Body $Body -ContentType "application/x-www-form-urlencoded" -Method Post
+    $Token = Invoke-RestMethod -Uri "https://$($ModuleControlFlags.InstanceName).service-now.com/$RestEndpoint" -Body $Body -ContentType "application/x-www-form-urlencoded" -Method Post
     if ($Token) {
         $ModuleControlFlags.AccessToken = $Token.access_token
         $ModuleControlFlags.RefreshToken = $Token.refresh_token
