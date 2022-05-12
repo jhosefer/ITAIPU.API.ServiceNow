@@ -19,22 +19,30 @@
         [Parameter(Mandatory=$true,ParameterSetName='SET1')]
         [string]$ID,
 
-        [Parameter(Mandatory=$true,ParameterSetName='SET3')]
-        [string]$Query
+        [Parameter(Mandatory=$true,ParameterSetName='SET2')]
+        [string]$Query,
+
+        [Parameter(Mandatory=$false,ParameterSetName='SET1')]
+        [Parameter(Mandatory=$false,ParameterSetName='SET2')]
+        [System.Object]$ResultSize
     )
 
-    $RestEndpoint = "api/now/table/sys_user"
-    $BaseURI = "$($ModuleControlFlags.InstanceURI)/$RestEndpoint"
+    $Endpoint = "/api/now/table/sys_user"
 
     if($PSBoundParameters.ContainsKey('ID')){
-        $URI = "$BaseURI`?sysparm_query=sys_id=$ID^ORuser_name=$ID^ORname=$ID&sysparm_limit=1"
+        $Filtro = "sys_id=$ID^ORuser_name=$ID^ORname=$ID"
     }
     if($PSBoundParameters.ContainsKey('Query')){
-        $URI = "$BaseURI`?sysparm_query=$Query&sysparm_limit=10000"
-    }
+        $Filtro = $Query
+    }   
 
     try {
-        $Json = $(Invoke-IBSNRestAPI -URI $URI -Method GET -ErrorAction Stop).Result
+        if($PSBoundParameters.ContainsKey('ResultSize')){
+            $Json = Invoke-IBSNRestAPI -Resource $Endpoint -Query $Filtro -ResultSize $ResultSize
+        }
+        else {
+            $Json = Invoke-IBSNRestAPI -Resource $Endpoint -Query $Filtro
+        }
         $Json | ForEach-Object{$_.psobject.TypeNames.Insert(0, "IBSNUser")}; $Json  # Define a saida como um objeto do tipo IBSNUser
     }
     catch{
