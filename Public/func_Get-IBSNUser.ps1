@@ -26,6 +26,14 @@
         [Parameter(Mandatory=$false,Position=1,ParameterSetName='SET2')]
         [string]$Query,
 
+        [Parameter(Mandatory=$false,Position=2,ParameterSetName='SET2')]
+        [ValidateScript({
+            ($_.ContainsKey('attribute') -and $_.ContainsKey('order'))
+            },
+            ErrorMessage = "Parâmetro deve ser especificado com as seguintes chaves: attribute='value' e order='asc|desc'"
+        )]
+        [Hashtable]$Sort,
+
         [Parameter(Mandatory=$false,Position=3,ParameterSetName='SET1')]
         [Parameter(Mandatory=$false,Position=3,ParameterSetName='SET2')]
         [System.Object]$ResultSize
@@ -35,7 +43,7 @@
     $Filtro = ($PSCmdlet.ParameterSetName -eq 'SET1') ? "sys_id=$ID^ORuser_name=$ID^ORname=$ID" : $Query
   
     try {
-        $Json = Invoke-IBSNRestAPI -Resource $Endpoint -Query $Filtro -ResultSize $ResultSize
+        $Json = Invoke-IBSNRestAPI -Resource $Endpoint -Query $Filtro -Sort $Sort -ResultSize $ResultSize
         $Json | ForEach-Object{$_.psobject.TypeNames.Insert(0, "IBSNUser")}; $Json  # Define a saida como um objeto do tipo IBSNUser
     }
     catch{
