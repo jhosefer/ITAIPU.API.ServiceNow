@@ -1,11 +1,13 @@
 ﻿function Invoke-IBSNRestAPI {
     <#
     .SYNOPSIS
-        Realiza uma chamada Rest API.
+        Realiza uma chamada Rest API ao Service Now.
     .DESCRIPTION
-        Realiza uma chamada Rest API
+        Realiza uma chamada Rest API ao Service Now.
     .PARAMETER Resource
         Recurso a ser consumido na chamada rest. Deve ser escrito na forma: '/api/now/table/sc_request'
+    .PARAMETER URI
+        Diferentemente do Parâmetro Resource, neste parâmetro você deve especificar a URI completa incluido a query.  
     .PARAMETER Query
         Critério de pesquisa na chamada Rest. A Sintaxe da Query pode ser consultada em https://docs.servicenow.com/bundle/rome-application-development/page/build/applications/concept/api-rest.html.
         Obs: Uma forma fácil de obter a query é realizar os filtros diretamente no ServiceNow e utilizar o recurso "copy Query".
@@ -20,13 +22,29 @@
         Caso não especificado, sempre irá retornar os dados ordenados por data de forma ascendente.       
     .PARAMETER Body
         Especifica o Corpo da chamada.
+    .PARAMETER Body
+        Especifica a URI completa.
     .PARAMETER Method
-        Especifica o Método.
+        Especifica o Método. Padrão: GET
         Os seguintes valores são possiveis: GET,POST,PUT,PATCH,DELETE
+    .EXAMPLE
+        Invoke-IBSNRestAPI -URI https://instance.service-now.com/api/now/table/sys_user/f5d96ba41b9478100ff06350f54bcbb4
+
+        --
+        Realiza uma chamada Rest especificando a URI completa do recurso.
+    .EXAMPLE
+        Invoke-IBSNRestAPI -Resource "/api/now/table/sc_request" -Query "cat_item=d94e1127db373c10467d5c4bf39619e2" -ResultSize 10 -Sort @{attribute='sys_created_on';order='desc'}
+
+        --
+        Realiza uma chamada Rest especificando utilizando o método GET para obter os dados da tabela sc_request.
+        Apenas os 10 primeiros resultados são retornados ordenados de forma descendente pelo atributo sys_created_on.
     #>
     [CmdletBinding(DefaultParameterSetName='SET0')]
     [OutputType([int])]
     param(
+        [Parameter(Mandatory=$true,ParameterSetName='SET1')]
+        [System.Uri]$URI,
+
         [Parameter(Mandatory=$true,ParameterSetName='SET0')]
         [string]$Resource,
 
@@ -40,58 +58,58 @@
         [System.Collections.Hashtable]$Sort,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
+        [Parameter(Mandatory=$false,ParameterSetName='SET1')]
         [System.Object]$Body,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
+        [Parameter(Mandatory=$false,ParameterSetName='SET1')]
         [ValidateSet('GET','POST','PUT','PATCH','DELETE')]
         [string]$Method = 'GET'
     )
 
-    
-
-    # Determina se a consulta irá realizar paginação.
-    if ($PSBoundParameters.ContainsKey('ResultSize')){
-        Test-ResultSize -ResultSize $ResultSize # Valida o ResultSize. Em caso de erro lança um Erro terminavel.
-        if ($ResultSize -eq 'Unlimited' -or $ResultSize -gt $PAGE_SIZE){
-            $Pagination=$true
-            $Limit = $PAGE_SIZE
+    if (-not $(Test-ServiceNowSession)){
+        Write-Error "Você precisa se conectar a uma instância do ServiceNow para rodar este comando. Utilize Connect-IBServiceNow." -ErrorAction Stop
+    }
+    else {
+        
+        # Valida a URI fornecida pelo Usuário
+        if ($PSCmdlet.ParameterSetName -eq 'SET1' -and ($URI.Authority -ne "$($ModuleControlFlags.InstanceName).service-now.com")){
+            Write-Error "URI informada não corresponde a instância $($ModuleControlFlags.InstanceName) conectada." -ErrorAction Stop
+        }
+        
+        # Determina se a consulta irá realizar paginação.
+        if ($PSBoundParameters.ContainsKey('ResultSize')){
+            Test-ResultSize -ResultSize $ResultSize # Valida o ResultSize. Em caso de erro lança um Erro terminal.
+            if ($ResultSize -eq 'Unlimited' -or $ResultSize -gt $PAGE_SIZE){
+                $Pagination=$true
+                $Limit = $PAGE_SIZE
+            }
+            else { 
+                $Pagination=$false
+                $Limit = $ResultSize
+            }
         }
         else { 
-            $Pagination=$false
-            $Limit = $ResultSize
+            $Pagination=$false 
+            $Limit = $PAGE_SIZE
         }
-    }
-    else { 
-        $Pagination=$false 
-        $Limit = $PAGE_SIZE
-    }
 
-    # Determina a Ordenação
-    if ($PSBoundParameters.ContainsKey('Sort')){
-        if (-not ($sort.ContainsKey('attribute') -and $sort.ContainsKey('order'))){
-            Write-Error "Parâmetro Sort deve ser especificado na forma: @{attribute='value';order='asc|desc'}." -ErrorAction Stop
-        }
-        if ($Sort.order -eq 'desc'){
-            $Order = "ORDERBYDESC$($Sort.attribute)"
+        # Determina a Ordenação
+        if ($PSBoundParameters.ContainsKey('Sort')){
+            if (-not ($sort.ContainsKey('attribute') -and $sort.ContainsKey('order'))){
+                Write-Error "Parâmetro Sort deve ser especificado na forma: @{attribute='value';order='asc|desc'}." -ErrorAction Stop
+            }
+            $Order = ($Sort.order -eq 'desc') ? "ORDERBYDESC$($Sort.attribute)" : "ORDERBY$($Sort.attribute)"
         }
         else {
-            $Order = "ORDERBY$($Sort.attribute)"
+            # Caso não especificado, o resultado sempre será ordenando de forma ascendente pela data de criação.
+            $Order = "ORDERBYsys_created_on"
         }
-    }
-    else {
-        # Caso não especificado, o resultado sempre será ordenando de forma ascendente pela data de criação.
-        $Order = "ORDERBYsys_created_on"
-    }
 
-    # Ajusta o Filtro de pesquisa.
-    if ($PSBoundParameters.ContainsKey('Query')){
-        $Filtro = "$Query^$Order"
-    }
-    else {
-        $Filtro = $Order
-    }
+        # Ajusta o Filtro de pesquisa.
+        $Filtro =  $PSBoundParameters.ContainsKey('Query') ? "$Query^$Order" : $Order
 
-    if (Test-ServiceNowSession){
+        # Definição do Header e URL
         $headers = @{
             'Accept' = 'application/json'
             'Authorization' = "Bearer $($ModuleControlFlags.AccessToken)"
@@ -121,13 +139,14 @@
             } while ($Json.count -lt $ResultSize)
             $Json | select-object -first $ResultSize
         }
-        else {
+        else { # Pagination = $false
+            $NewURL = $PSCmdlet.ParameterSetName -eq 'SET1' ? $URI : $URL
             try {
                 if ($ModuleControlFlags.AuthType -eq 'Oauth'){
-                    $Json = $(Invoke-RestMethod -Uri $URL -Method $Method -Headers $headers -Body $Body -ContentType "application/json;charset=utf-8" -ErrorAction Stop).Result
+                    $Json = $(Invoke-RestMethod -Uri $NewURL -Method $Method -Headers $headers -Body $Body -ContentType "application/json;charset=utf-8" -ErrorAction Stop).Result
                 }
                 if ($ModuleControlFlags.AuthType -eq 'Basic'){
-                    $Json = $(Invoke-RestMethod -Uri $URL -Method $Method -Body $Body -ContentType "application/json;charset=utf-8" -Authentication Basic -Credential $ModuleControlFlags.Credential -ErrorAction Stop).Result
+                    $Json = $(Invoke-RestMethod -Uri $NewURL -Method $Method -Body $Body -ContentType "application/json;charset=utf-8" -Authentication Basic -Credential $ModuleControlFlags.Credential -ErrorAction Stop).Result
                 }     
             }
             catch{
@@ -139,9 +158,6 @@
                 Write-Warning "Por padrão, apenas os primeiros $PAGE_SIZE elementos são retornados. Utilize o parâmetro ResultSize para especificar o número de itens que deseja. Para retornar todos os items, use: `"-ResultSize Unlimited`". Tenha em mente que dependendo do número de items, retornar todos os objetos pode levar bastante tempo e consumir bastante memória."
             }
             $Json
-        }       
-    }
-    else {
-        Write-Error "Você precisa se conectar a uma instância do ServiceNow para rodar este comando. Utilize Connect-IBServiceNow."
-    }
+        }
+    }       
 }
