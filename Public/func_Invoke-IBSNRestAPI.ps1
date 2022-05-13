@@ -163,8 +163,8 @@
             }
             catch{
                 $httpError = $_.Exception.Response.StatusCode
-                $razao = ($_.ErrorDetails.Message | ConvertFrom-Json).Error.message
-                Write-Error "HTTP $($httpError.value__) $httpError`: $razao" -ErrorAction Stop
+                $ErrorMessage = ($_.ErrorDetails.Message | Test-Json -ErrorAction SilentlyContinue) ? ($_.ErrorDetails.Message | ConvertFrom-Json).Error.message : $_.ErrorDetails.Message
+                Write-Error "HTTP $($httpError.value__) $httpError`: $ErrorMessage" -ErrorAction Stop
             } 
             if ($Json.count -eq $PAGE_SIZE){
                 Write-Warning "Por padrão, apenas os primeiros $PAGE_SIZE elementos são retornados. Utilize o parâmetro ResultSize para especificar o número de itens que deseja. Para retornar todos os items, use: `"-ResultSize Unlimited`". Tenha em mente que dependendo do número de items, retornar todos os objetos pode levar bastante tempo e consumir bastante memória."
