@@ -69,11 +69,6 @@
         [AllowNull()]
         [AllowEmptyString()]
         [AllowEmptyCollection()]
-        [ValidateScript({
-            ($_.ContainsKey('attribute') -and $_.ContainsKey('order'))
-            },
-            ErrorMessage = "Parâmetro deve ser especificado com as seguintes chaves: attribute='value' e order='asc|desc'"
-        )]
         [System.Collections.Hashtable]$Sort,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
@@ -118,6 +113,9 @@
 
         # Determina a Ordenação
         if ($PSBoundParameters.ContainsKey('Sort') -and ($Null -ne $Sort)){
+            if (-not ($Sort.ContainsKey('attribute') -and $Sort.ContainsKey('order'))){
+                Write-Error "Parâmetro Sort deve ser especificado com as chaves attribute e order. Exemplo: @{attribute='value';order='desc|asc'}" -ErrorAction Stop
+            }
             $Order = ($Sort.order -eq 'desc') ? "ORDERBYDESC$($Sort.attribute)" : "ORDERBY$($Sort.attribute)"
         }
         else {
