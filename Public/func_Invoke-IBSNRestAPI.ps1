@@ -46,6 +46,11 @@
         [System.Uri]$URI,
 
         [Parameter(Mandatory=$true,ParameterSetName='SET0')]
+        [ValidateScript({
+            $_.StartsWith('/') -and -not $_.EndsWith('/')
+            },
+            ErrorMessage = "Argumento deve ser especificado na forma '/path/to/resource'."
+        )]
         [string]$Resource,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
@@ -64,6 +69,11 @@
         [AllowNull()]
         [AllowEmptyString()]
         [AllowEmptyCollection()]
+        [ValidateScript({
+            ($_.ContainsKey('attribute') -and $_.ContainsKey('order'))
+            },
+            ErrorMessage = "Parâmetro deve ser especificado com as seguintes chaves: attribute='value' e order='asc|desc'"
+        )]
         [System.Collections.Hashtable]$Sort,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
@@ -108,9 +118,6 @@
 
         # Determina a Ordenação
         if ($PSBoundParameters.ContainsKey('Sort') -and ($Null -ne $Sort)){
-            if (-not ($sort.ContainsKey('attribute') -and $sort.ContainsKey('order'))){
-                Write-Error "Parâmetro Sort deve ser especificado na forma: @{attribute='value';order='asc|desc'}." -ErrorAction Stop
-            }
             $Order = ($Sort.order -eq 'desc') ? "ORDERBYDESC$($Sort.attribute)" : "ORDERBY$($Sort.attribute)"
         }
         else {
