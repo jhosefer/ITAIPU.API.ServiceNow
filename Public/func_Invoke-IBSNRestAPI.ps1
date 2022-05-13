@@ -49,16 +49,28 @@
         [string]$Resource,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
+        [AllowNull()]
+        [AllowEmptyString()]
+        [AllowEmptyCollection()]
         [string]$Query,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
+        [AllowNull()]
+        [AllowEmptyString()]
+        [AllowEmptyCollection()]
         [System.Object]$ResultSize,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
+        [AllowNull()]
+        [AllowEmptyString()]
+        [AllowEmptyCollection()]
         [System.Collections.Hashtable]$Sort,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
         [Parameter(Mandatory=$false,ParameterSetName='SET1')]
+        [AllowNull()]
+        [AllowEmptyString()]
+        [AllowEmptyCollection()]
         [System.Object]$Body,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
@@ -78,7 +90,7 @@
         }
         
         # Determina se a consulta irá realizar paginação.
-        if ($PSBoundParameters.ContainsKey('ResultSize')){
+        if ($PSBoundParameters.ContainsKey('ResultSize') -and ($Null -ne $ResultSize)){
             Test-ResultSize -ResultSize $ResultSize # Valida o ResultSize. Em caso de erro lança um Erro terminal.
             if ($ResultSize -eq 'Unlimited' -or $ResultSize -gt $PAGE_SIZE){
                 $Pagination=$true
@@ -95,7 +107,7 @@
         }
 
         # Determina a Ordenação
-        if ($PSBoundParameters.ContainsKey('Sort')){
+        if ($PSBoundParameters.ContainsKey('Sort') -and ($Null -ne $Sort)){
             if (-not ($sort.ContainsKey('attribute') -and $sort.ContainsKey('order'))){
                 Write-Error "Parâmetro Sort deve ser especificado na forma: @{attribute='value';order='asc|desc'}." -ErrorAction Stop
             }
@@ -107,7 +119,7 @@
         }
 
         # Ajusta o Filtro de pesquisa.
-        $Filtro =  $PSBoundParameters.ContainsKey('Query') ? "$Query^$Order" : $Order
+        $Filtro =  ($PSBoundParameters.ContainsKey('Query')-and ($Null -ne $Query)) ? "$Query^$Order" : $Order
 
         # Definição do Header e URL
         $headers = @{

@@ -1,14 +1,18 @@
 ﻿function Get-IBSNUser {
     <#
     .SYNOPSIS
-        Obtem um usuário.
+        Obtem um usuário ServiceNow.
     .DESCRIPTION
-        Obtem um Usuário.
+        Obtem um Usuário ServiceNow.
     .PARAMETER ID
         Especifica a Identidade do usuário a ser buscada.
         O ID pode ser: SysID, UserName, DisplayName.
     .PARAMETER Query
-        Especifica o critério de busca.
+        Critério de pesquisa na chamada Rest. A Sintaxe da Query pode ser consultada em https://docs.servicenow.com/bundle/rome-application-development/page/build/applications/concept/api-rest.html.
+        Obs: Uma forma fácil de obter a query é realizar os filtros diretamente no ServiceNow e utilizar o recurso "copy Query".
+    .PARAMETER ResultSize
+        Por padrão, apenas um número fixo de elementos são retornados em cada chamada Rest. 
+        Utilize o parâmetro ResultSize para especificar o número de itens que deseja. Para retornar todos os items, use: "-ResultSize Unlimited". Tenha em mente que dependendo do número de items, retornar todos os objetos pode levar bastante tempo e consumir bastante memória.
     .EXAMPLE
         Get-IBSNUser -ID user@domain.com
     #>
@@ -28,14 +32,8 @@
     )
 
     $Endpoint = "/api/now/table/sys_user"
-
-    if($PSBoundParameters.ContainsKey('ID')){
-        $Filtro = "sys_id=$ID^ORuser_name=$ID^ORname=$ID"
-    }
-    if($PSBoundParameters.ContainsKey('Query')){
-        $Filtro = $Query
-    }   
-
+    $Filtro = $PSCmdlet.ParameterSetName -eq 'SET1' ? "sys_id=$ID^ORuser_name=$ID^ORname=$ID" : $Query
+  
     try {
         if($PSBoundParameters.ContainsKey('ResultSize')){
             $Json = Invoke-IBSNRestAPI -Resource $Endpoint -Query $Filtro -ResultSize $ResultSize
