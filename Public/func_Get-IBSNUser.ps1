@@ -20,7 +20,7 @@
     [CmdletBinding(DefaultParameterSetName='SET1')]
     [OutputType([int])]
     param(
-        [Parameter(Mandatory=$true,Position=0,ParameterSetName='SET1')]
+        [Parameter(Mandatory=$false,Position=0,ParameterSetName='SET1')]
         [string]$ID,
 
         [Parameter(Mandatory=$false,Position=1,ParameterSetName='SET2')]
@@ -40,7 +40,7 @@
     )
 
     $Endpoint = "/api/now/table/sys_user"
-    $Filtro = ($PSCmdlet.ParameterSetName -eq 'SET1') ? "sys_id=$ID^ORuser_name=$ID^ORname=$ID" : $Query
+    $Filtro = ($PSBoundParameters.ContainsKey('ID')) ? "sys_id=$ID^ORuser_name=$ID^ORname=$ID" : $Query
   
     try {
         $Json = Invoke-IBSNRestAPI -Resource $Endpoint -Query $Filtro -Sort $Sort -ResultSize $ResultSize
