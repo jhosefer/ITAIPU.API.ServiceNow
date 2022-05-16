@@ -1,72 +1,51 @@
 ﻿function Get-IBSNCatalogCategory {
     <#
     .SYNOPSIS
-        Obtem a categoria de um Catálogo.
+        Obtem a categoria de um determinado catálogo.
     .DESCRIPTION
-        Obtem a categoria de um Catálogo.
-        Caso não seja especificado, retorna todas as cetegorias em um determinado catálogo.
-    .PARAMETER Catalog
-        Especifica um objeto Catálogo ou seu SysID.
+        Obtem a categoria de um determinado catálogo.
+        Caso não seja especificado, retorna todas as cetegorias presentes no catálogo especificado.
+    .PARAMETER CatalogID
+        Especifica o catálogo do qual se deseja obter as categorias.
+        Pode ser: SysID ou Nome do Catálogo.
     .PARAMETER ID
-        Especifica o SysID de uma categoria.
-    .OUTPUTS
-        Retorna um objeto PSCustomObject do tipo IBSNCatalogCategory.
+        Especifica a Identidade da categoria a ser obtida.
+        O ID pode ser: SysID ou Name.
+    .PARAMETER ResultSize
+        Por padrão, apenas um número fixo de elementos são retornados em cada chamada Rest. 
+        Utilize o parâmetro ResultSize para especificar o número de itens que deseja. Para retornar todos os items, use: "-ResultSize Unlimited". Tenha em mente que dependendo do número de items, retornar todos os objetos pode levar bastante tempo e consumir bastante memória.
     .EXAMPLE
-        Get-IBSNCatalog | Get-IBSNCatalogCategory
+        Get-IBSNCatalogCategory -CatalogID xxxx
 
         --
-        Retorna todas as categorias de todos os catalogos.
+        Obtem a lista de categorias do catalogo especificado.
     .EXAMPLE
-        Get-IBSNCatalogCategory -Catalog xxxxxxxxxxx
+        Get-IBSNCatalogCategory -ID xxxx
 
         --
-        Retorna todas as categorias do catalogo especificado.
-    .EXAMPLE
-        Get-IBSNCatalogCategory -ID xxxxxxxxxxx
-
-        --
-        Retorna a Categoria cujo SysID é especificado.
+        Obtem a categoria especificada.
     #>
+
     [CmdletBinding(DefaultParameterSetName='SET1')]
     [OutputType([int])]
     param(
-        [Parameter(Mandatory=$true,ParameterSetName='SET1')]
-        [String]$ID,
+        [Parameter(Mandatory=$true,Position=0,ParameterSetName='SET1')]
+        [string]$ID,
 
-        [ValidateScript({
-                if ($_ -is [string]){
-                    return $true
-                }
-                elseif ($_.psobject.typenames -contains "IBSNCatalog") {
-                    return $true
-                }
-                else{
-                    return $false
-                }
-            },ErrorMessage = "Por favor, informe um objeto do tipo IBSNCatalog"
-        )]
-        [Parameter(Mandatory=$true,ParameterSetName='SET2',ValueFromPipeline=$true)]
-        [System.Object]$Catalog
+        [Parameter(Mandatory=$true,Position=1,ParameterSetName='SET2')]
+        [string]$CatalogID,
+
+        [Parameter(Mandatory=$false,Position=4,ParameterSetName='SET2')]
+        [System.Object]$ResultSize
     )
 
-    $RestEndpoint1 = "api/sn_sc/servicecatalog/catalogs"    # Obtem categorias por um catalago especifico
-    $RestEndpoint2 = "api/sn_sc/servicecatalog/categories"  # Obtem uma categoria especifica
-
-    if($PSBoundParameters.ContainsKey('ID')){
-        $URI = "$($ModuleControlFlags.InstanceURI)/$RestEndpoint2/$ID`?sysparm_limit=1"
-    }
-    if ($PSBoundParameters.ContainsKey('Catalog')) {
-        if ($Catalog.psobject.typenames -contains "IBSNCatalog"){
-            $URI = "$($ModuleControlFlags.InstanceURI)/$RestEndpoint1/$($Catalog.sys_id)/categories`?sysparm_limit=10000"
-        }
-        else{
-            $URI = "$($ModuleControlFlags.InstanceURI)/$RestEndpoint1/$Catalog/categories`?sysparm_limit=10000"
-        }       
-    }
-
+    $Endpoint1 = "/api/sn_sc/servicecatalog/catalogs/$CatalogID/categories" 
+    $Endpoint2 = "/api/sn_sc/servicecatalog/categories/$ID"             
+    $Resource = ($PSBoundParameters.ContainsKey('ID')) ? $Endpoint2 : $Endpoint1
+  
     try {
-        $Json = $(Invoke-IBSNRestAPI -URI $URI -Method GET -ErrorAction Stop).Result
-        $Json | ForEach-Object{$_.psobject.TypeNames.Insert(0, "IBSNCatalogCategory")}; $Json  # Define a saida como um objeto do tipo IBSNCatalog
+        $Json = Invoke-IBSNRestAPI -Resource $Resource -Query $Filtro -Sort $Sort -ResultSize $ResultSize
+        $Json | ForEach-Object{$_.psobject.TypeNames.Insert(0, "IBSNCatalogCategory")}; $Json
     }
     catch{
         Write-Error "$($_.Exception.Message)"
