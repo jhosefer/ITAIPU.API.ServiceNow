@@ -11,6 +11,10 @@
     .PARAMETER Query
         Critério de pesquisa na chamada Rest. A Sintaxe da Query pode ser consultada em https://docs.servicenow.com/bundle/rome-application-development/page/build/applications/concept/api-rest.html.
         Obs: Uma forma fácil de obter a query é realizar os filtros diretamente no ServiceNow e utilizar o recurso "copy Query".
+    .PARAMETER AdditionalSysParms
+        Especifica parametros adicionais.
+        Algumas API's possuem parametros adicionais que poderão ser fornecidos, exemplo: sysparm_category.
+        Os parametros devem ser especificados como string na forma chave=valor.
     .PARAMETER ResultSize
         Por padrão, apenas um número fixo de elementos são retornados em cada chamada Rest. 
         Utilize o parâmetro ResultSize para especificar o número de itens que deseja. Para retornar todos os items, use: "-ResultSize Unlimited". Tenha em mente que dependendo do número de items, retornar todos os objetos pode levar bastante tempo e consumir bastante memória.
@@ -58,6 +62,12 @@
         [AllowEmptyString()]
         [AllowEmptyCollection()]
         [string]$Query,
+
+        [Parameter(Mandatory=$false,ParameterSetName='SET0')]
+        [AllowNull()]
+        [AllowEmptyString()]
+        [AllowEmptyCollection()]
+        [string]$AdditionalSysParms,
 
         [Parameter(Mandatory=$false,ParameterSetName='SET0')]
         [AllowNull()]
@@ -131,7 +141,7 @@
             'Accept' = 'application/json'
             'Authorization' = "Bearer $($ModuleControlFlags.AccessToken)"
         }
-        $URL =  "https://$($ModuleControlFlags.InstanceName).service-now.com$Resource`?sysparm_limit=$Limit&sysparm_query=$Filtro"
+        $URL =  "https://$($ModuleControlFlags.InstanceName).service-now.com$Resource`?$AdditionalSysParms&sysparm_limit=$Limit&sysparm_query=$Filtro"
 
         if ($Pagination){
             $Offset = 0
