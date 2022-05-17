@@ -142,6 +142,7 @@
             'Authorization' = "Bearer $($ModuleControlFlags.AccessToken)"
         }
         $URL =  "https://$($ModuleControlFlags.InstanceName).service-now.com$Resource`?$AdditionalSysParms&sysparm_limit=$Limit&sysparm_query=$Filtro"
+        Write-Verbose "URL: $URL"
 
         if ($Pagination){
             $Offset = 0
